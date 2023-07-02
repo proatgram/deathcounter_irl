@@ -26,3 +26,8 @@ if(NOT PROJECT_IS_TOP_LEVEL)
     set(warning_guard SYSTEM)
   endif()
 endif()
+
+# ---- Build Testing ----
+
+# Build testing enables the compilation of unit test binaries
+option(BUILD_TESTING "Build unit testing binaries and run unit tests" OFF)

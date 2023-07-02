@@ -28,14 +28,24 @@ fetchcontent_declare(
     FIND_PACKAGE_ARGS
 )
 
-fetchcontent_makeavailable(dpp)
+# argparse C++ Argument parsing library
+fetchcontent_declare(
+    argparse
+    GIT_REPOSITORY https://github.com/p-ranav/argparse.git
+    GIT_TAG 997da9255618311d1fcb0135ce86022729d1f1cb # Release v2.9.0
+    FIND_PACKAGE_ARGS
+)
+
+fetchcontent_makeavailable(dpp argparse)
 
 # ---- Declare executable ----
 
-add_executable(deathcounter_irl_binary source/main.cpp)
+add_executable(deathcounter_irl_binary source/main.cpp source/bot.cpp)
 add_executable(deathcounter_irl::binary ALIAS deathcounter_irl_binary)
 
-target_include_directories(deathcounter_irl_binary PUBLIC ${CMAKE_SOURCE_DIR})
+configure_file(${CMAKE_SOURCE_DIR}/include/config.hpp.in ${CMAKE_SOURCE_DIR}/include/config.hpp @ONLY)
+
+target_include_directories(deathcounter_irl_binary PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
 set_property(TARGET deathcounter_irl_binary PROPERTY OUTPUT_NAME deathcounter_irl)
 

@@ -6,11 +6,11 @@ if(BUILD_TESTING)
 endif()
 
 add_custom_target(
-    run-exe
-    COMMAND deathcounter_irl_exe
+    run-binary
+    COMMAND deathcounter_irl_binary
     VERBATIM
 )
-add_dependencies(run-exe deathcounter_irl_exe)
+add_dependencies(run-binary deathcounter_irl_binary)
 
 option(BUILD_MCSS_DOCS "Build documentation using Doxygen and m.css" OFF)
 if(BUILD_MCSS_DOCS)
