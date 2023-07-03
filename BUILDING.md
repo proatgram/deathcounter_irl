@@ -5,6 +5,7 @@
  - [DPP](https://dpp.dev/): A Discord C++ library
  - [argparse](https://github.com/p-ranav/argparse): A C++ Library for parsing command line arguments
  - [Catch2v3](https://github.com/catchorg/Catch2): A modern, C++-native, test framework for unit-tests, TDD and BDD (Optional, for tests only)
+ - [libpq++](https://github.com/jtv/libpqxx): The official C++ client API for PostgreSQL.
 
 ## Build
 

@@ -9,3 +9,5 @@ prefix/
 CMakeLists.txt.user
 CMakeUserPresets.json
 compile_commands.json
+docker-compose.yml
+include/config.hpp

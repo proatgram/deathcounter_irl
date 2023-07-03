@@ -19,6 +19,7 @@
 #pragma once
 
 #include <dpp/dpp.h>
+#include <pqxx/pqxx>
 
 namespace death {
     class bot {
@@ -27,14 +28,26 @@ namespace death {
             bot(bot&&) = delete;
             auto operator=(const bot&) -> bot& = delete;
             auto operator=(bot&&) -> bot& = delete;
-            ~bot() = default;
+            ~bot();
         
-            explicit bot(const std::string_view &bot_token);
+            explicit bot(const std::string &bot_token, const std::string &db_hostname, const std::string &db_name, const std::string &db_user, const std::string &db_passwd, const std::string &db_port);
 
             void start();
 
         private:
             std::string_view m_bot_token;
             dpp::cluster m_cluster;
+            std::string m_connection_uri;
+            pqxx::connection m_db;
+
+            std::atomic_bool m_guild_cache_ready;
+            
+            void register_commands();
+
+            void command_deaths(const dpp::slashcommand_t &event);
+
+            void check_database();
+
+            void add_guild_to_database(const dpp::guild &guild);
     };
 } // namespace death

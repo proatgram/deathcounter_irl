@@ -47,4 +47,4 @@ constexpr std::string_view project_license_notice_interactive = R"LICENSE_NOTICE
 @PROJECT_NAME@  Copyright (C) 2023  Timothy Hutchins
 This program comes with ABSOLUTELY NO WARRANTY; for details type `<program> --license'.
 This is free software, and you are welcome to redistribute it
-under certain conditions; type `' for details.)LICENSE_NOTICE";
+under certain conditions; type '<program> --license')LICENSE_NOTICE";

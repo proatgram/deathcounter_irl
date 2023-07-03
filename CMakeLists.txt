@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
+cmake_policy(SET CMP0077 NEW)
+
 include(FetchContent)
 
 include(cmake/prelude.cmake)
@@ -15,6 +17,9 @@ project(
 set(FETCHCONTENT_TRY_FIND_PACKAGE_MODE OPT_IN)
 set(FETCHCONTENT_QUIET OFF)
 
+set(DPP_USE_EXTERNAL_JSON ON)
+set(DPP_CORO OFF)
+
 include(cmake/project-is-top-level.cmake)
 include(cmake/variables.cmake)
 
@@ -25,7 +30,7 @@ fetchcontent_declare(
     dpp
     GIT_REPOSITORY https://github.com/brainboxdotcc/DPP.git
     GIT_TAG 63ac3fed8bdd92e3122c6079b944f70fc9546dc2 # Release v10.0.24
-    FIND_PACKAGE_ARGS
+    FIND_PACKAGE_ARGS CONFIG
 )
 
 # argparse C++ Argument parsing library
@@ -33,10 +38,33 @@ fetchcontent_declare(
     argparse
     GIT_REPOSITORY https://github.com/p-ranav/argparse.git
     GIT_TAG 997da9255618311d1fcb0135ce86022729d1f1cb # Release v2.9.0
+    FIND_PACKAGE_ARGS CONFIG
+)
+
+# libpqxx C++ PostgreSQL library
+fetchcontent_declare(
+    libpqxx
+    GIT_REPOSITORY https://github.com/jtv/libpqxx.git
+    GIT_TAG 221ddc8be329bafb376a3d83b9cd257fd52fc7b7 # Release v7.6.0
+    FIND_PACKAGE_ARGS CONFIG
+)
+
+# libpq PostgreSQL library (required for libpqxx)
+fetchcontent_declare(
+    PostgreSQL
+    GIT_REPOSITORY https://git.postgresql.org/git/postgresql.git
+    GIT_TAG 8382864eb5c9f9ebe962ac20b3392be5ae304d23
     FIND_PACKAGE_ARGS
 )
 
-fetchcontent_makeavailable(dpp argparse)
+fetchcontent_declare(
+    nlohmann_json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG bc889afb4c5bf1c0d8ee29ef35eaaf4c8bef8a5d
+    FIND_PACKAGE_ARGS CONFIG
+)
+
+fetchcontent_makeavailable(dpp argparse libpqxx PostgreSQL nlohmann_json)
 
 # ---- Declare executable ----
 
@@ -51,7 +79,7 @@ set_property(TARGET deathcounter_irl_binary PROPERTY OUTPUT_NAME deathcounter_ir
 
 target_compile_features(deathcounter_irl_binary PRIVATE cxx_std_17)
 
-target_link_libraries(deathcounter_irl_binary PRIVATE dpp)
+target_link_libraries(deathcounter_irl_binary PRIVATE dpp libpqxx::pqxx nlohmann_json::nlohmann_json PostgreSQL::PostgreSQL)
 
 # ---- Install rules ----
 

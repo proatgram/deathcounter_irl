@@ -44,7 +44,20 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) -> int {
     program.add_argument("--api-key", "-k")
         .help("set the Discord bot API key")
         .required();
-
+    program.add_argument("--db-host", "-s")
+        .help("set the PostgreSQL server hostname")
+        .required();
+    program.add_argument("--db-port", "-p")
+        .help("set the PostgreSQL server port")
+        .default_value(std::string("5432"));
+    program.add_argument("--db-name", "-d")
+        .help("set the PostgreSQL database name")
+        .required();
+    program.add_argument("--db-user", "-u")
+        .help("set the PostgreSQL database username")
+        .required();
+    program.add_argument("--db-passwd", "-P")
+        .help("set the PostgreSQL database password");
     try {
         program.parse_args(argc, argv);
     }
@@ -54,7 +67,7 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) -> int {
         return 1;
     }
 
-    death::bot death_bot(program.get("--api-key"));
+    death::bot death_bot(program.get("--api-key"), program.get("--db-host"), program.get("--db-name"), program.get("--db-user"), program.get("--db-passwd"), program.get("--db-port"));
 
     death_bot.start();
 
