@@ -29,13 +29,13 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) -> int {
 
     program.add_description(std::string(project_description));
     program.add_epilog(std::string(project_license_notice_interactive)
-        .replace(project_license_notice_interactive.find("<program>"), 9, program_invocation_name)
+        .replace(project_license_notice_interactive.find("<program>"), 9, program_invocation_name) // NOLINT
     );
 
     program.add_argument("--license")
         .action([=]([[maybe_unused]] const std::string &arg){
                 std::cout << project_license << std::endl;
-                exit(0);
+                exit(0); // NOLINT
         })
         .help("prints the license used for this project")
         .default_value(false)

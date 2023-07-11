@@ -28,9 +28,9 @@ namespace death {
             return first.second > second.second;
         }
     };
-    bot::bot(const std::string &bot_token, const std::string &db_hostname, const std::string &db_name, const std::string &db_user, const std::string &db_passwd, const std::string &db_port) :
+    bot::bot(const std::string &bot_token, const std::string &db_hostname, const std::string &db_name, const std::string &db_user, const std::string &db_passwd, const std::string &db_port) : // NOLINT
         m_bot_token(bot_token),
-        m_cluster(bot_token, dpp::i_default_intents | dpp::i_message_content | dpp::i_guild_members),
+        m_cluster(bot_token, dpp::i_default_intents | dpp::i_message_content | dpp::i_guild_members), // NOLINT
         m_connection_uri("postgresql://" + db_user + ':' + db_passwd + '@' + db_hostname + ':' + db_port + '/' + db_name),
         m_db(m_connection_uri)
     {
@@ -58,7 +58,7 @@ namespace death {
         });
 
         m_cluster.on_message_reaction_add([this](const dpp::message_reaction_add_t &event) {
-            dpp::message message(m_cluster.message_get_sync(event.message_id, event.channel_id));
+            const dpp::message message(m_cluster.message_get_sync(event.message_id, event.channel_id));
             if (message.interaction.name.find("deathwish") != std::string::npos) {
                 if (message.interaction.usr.id == event.reacting_user.id && event.reacting_emoji.name.find("💀") != std::string::npos) {
                     dpp::message confirmation_reply(message.channel_id, "Confirmed! increasing deathcount. :skull: +1 :c", dpp::message_type::mt_reply);
@@ -67,7 +67,7 @@ namespace death {
                     m_cluster.message_create_sync(confirmation_reply);
                     pqxx::work work(m_db);
                     try {
-                        pqxx::result result(work.exec(
+                        const pqxx::result result(work.exec(
                         "UPDATE " +
                         work.quote_name(std::to_string(event.reacting_guild->id)) +
                         " SET user_deathcount = user_deathcount + 1 " +
@@ -97,7 +97,7 @@ namespace death {
                     event.reply(":muffinghost: detected! :skull: +1 :c");
                     pqxx::work work(m_db);
                     try {
-                        pqxx::result result(work.exec(
+                        const pqxx::result result(work.exec(
                         "UPDATE " +
                         work.quote_name(std::to_string(event.msg.guild_id)) +
                         " SET user_deathcount = user_deathcount + 1 " +
@@ -127,7 +127,7 @@ namespace death {
         std::vector<std::pair<std::string, int>> users;
         pqxx::work work(m_db);
         try {
-            pqxx::result result(work.exec("SELECT * FROM " + work.quote_name(std::to_string(event.command.guild_id))));
+            const pqxx::result result(work.exec("SELECT * FROM " + work.quote_name(std::to_string(event.command.guild_id))));
             work.commit();
             for (const auto &[user_name, user_displayname, user_nickname, user_id, user_deathcount] : result.iter<std::string, std::string, std::string, std::string, int>()) {
                 users.emplace_back((!user_nickname.empty() ? user_nickname : (!user_displayname.empty() ? user_displayname : user_name)), user_deathcount);
@@ -141,9 +141,12 @@ namespace death {
 
         deaths << "# DEATHS :skull:\n```\n";
 
-        deaths << "| " << std::setw(users.at(0).first.size() + 12) << std::left << "User" << " | " << "Deaths" << " |" << std::endl;
+        static constexpr size_t FIRST_COL_SPACES = 12;
+        static constexpr size_t SECOND_COL_SPACES = 6;
+
+        deaths << "| " << std::setw(static_cast<int>(users.at(0).first.size() + FIRST_COL_SPACES)) << std::left << "User" << " | " << "Deaths" << " |" << std::endl;
         for (const auto &[user, count] : users) {
-            deaths << "| " << std::setw(users.at(0).first.size() + 12) << std::left << user << " | " << std::setw(6) << count << " |" << std::endl;
+            deaths << "| " << std::setw(static_cast<int>(users.at(0).first.size() + FIRST_COL_SPACES)) << std::left << user << " | " << std::setw(SECOND_COL_SPACES) << count << " |" << std::endl; 
         }
         deaths << "```" << std::endl;;
             
@@ -153,9 +156,9 @@ namespace death {
     void bot::check_database() { // NOLINT
         dpp::cache<dpp::guild> *cache = dpp::get_guild_cache();
         // IMPORTANT: Lock Mutext to iterate over it, can't have race conditions can we :D
-        std::shared_lock lock(cache->get_mutex());
+        const std::shared_lock lock(cache->get_mutex());
 
-        std::unordered_map<dpp::snowflake, dpp::guild*> &guilds = cache->get_container();
+        const std::unordered_map<dpp::snowflake, dpp::guild*> &guilds = cache->get_container();
 
         for (const auto &[snowflake, guild] : guilds) {
             std::cout << guild->name << std::endl;
@@ -177,7 +180,7 @@ namespace death {
         << ");";
 
         try {
-            pqxx::result result(work.exec0(command.str()));
+            const pqxx::result result(work.exec0(command.str()));
             work.commit();
         }
         catch (const std::exception &err) {
@@ -211,7 +214,7 @@ namespace death {
                 << "(user_nickname, user_id, user_deathcount) = "
                 << "(tb.user_nickname, tb.user_id, tb.user_deathcount);";
             try {
-                pqxx::result result(work.exec(command.str()));
+                const pqxx::result result(work.exec(command.str()));
                 work.commit();
             }
             catch (const std::exception &err) {
