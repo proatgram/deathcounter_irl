@@ -40,8 +40,6 @@ namespace death {
             std::string m_connection_uri;
             pqxx::connection m_db;
 
-            std::atomic_bool m_guild_cache_ready;
-            
             void register_commands();
 
             void command_deaths(const dpp::slashcommand_t &event);
@@ -49,5 +47,7 @@ namespace death {
             void check_database();
 
             void add_guild_to_database(const dpp::guild &guild);
+
+            void add_guild_members_to_table(const dpp::members_container &members, const dpp::snowflake &guild_id);
     };
 } // namespace death

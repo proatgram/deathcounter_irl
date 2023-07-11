@@ -4,6 +4,9 @@ cmake_policy(SET CMP0077 NEW)
 
 include(FetchContent)
 
+# Because libpqxx make doesn't ship with cmake ;w;
+include(FindPkgConfig)
+
 include(cmake/prelude.cmake)
 
 project(
@@ -29,7 +32,7 @@ include(cmake/variables.cmake)
 fetchcontent_declare(
     dpp
     GIT_REPOSITORY https://github.com/brainboxdotcc/DPP.git
-    GIT_TAG 63ac3fed8bdd92e3122c6079b944f70fc9546dc2 # Release v10.0.24
+    GIT_TAG 472f5231ef0d6394b400b36f62b5f612e583931b # Latest Git commit with new username support
     FIND_PACKAGE_ARGS CONFIG
 )
 
@@ -41,13 +44,20 @@ fetchcontent_declare(
     FIND_PACKAGE_ARGS CONFIG
 )
 
-# libpqxx C++ PostgreSQL library
-fetchcontent_declare(
+# Check for libpqxx
+pkg_check_modules(
+    PQXX
     libpqxx
-    GIT_REPOSITORY https://github.com/jtv/libpqxx.git
-    GIT_TAG 221ddc8be329bafb376a3d83b9cd257fd52fc7b7 # Release v7.6.0
-    FIND_PACKAGE_ARGS CONFIG
 )
+
+if(NOT PQXX_FOUND)
+    # libpqxx C++ PostgreSQL library
+    fetchcontent_declare(
+        libpqxx
+        GIT_REPOSITORY https://github.com/jtv/libpqxx.git
+        GIT_TAG 221ddc8be329bafb376a3d83b9cd257fd52fc7b7 # Release v7.6.0
+    )
+endif()
 
 # libpq PostgreSQL library (required for libpqxx)
 fetchcontent_declare(
@@ -64,7 +74,7 @@ fetchcontent_declare(
     FIND_PACKAGE_ARGS CONFIG
 )
 
-fetchcontent_makeavailable(dpp argparse libpqxx PostgreSQL nlohmann_json)
+fetchcontent_makeavailable(dpp argparse PostgreSQL nlohmann_json)
 
 # ---- Declare executable ----
 
@@ -75,11 +85,13 @@ configure_file(${CMAKE_SOURCE_DIR}/include/config.hpp.in ${CMAKE_SOURCE_DIR}/inc
 
 target_include_directories(deathcounter_irl_binary PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
+target_include_directories(deathcounter_irl_binary SYSTEM PRIVATE ${PQXX_INCLUDE_DIRS})
+
 set_property(TARGET deathcounter_irl_binary PROPERTY OUTPUT_NAME deathcounter_irl)
 
 target_compile_features(deathcounter_irl_binary PRIVATE cxx_std_17)
 
-target_link_libraries(deathcounter_irl_binary PRIVATE dpp libpqxx::pqxx nlohmann_json::nlohmann_json PostgreSQL::PostgreSQL)
+target_link_libraries(deathcounter_irl_binary PRIVATE dpp ${PQXX_LIBRARIES} nlohmann_json::nlohmann_json PostgreSQL::PostgreSQL)
 
 # ---- Install rules ----
 
