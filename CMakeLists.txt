@@ -50,14 +50,6 @@ pkg_check_modules(
     libpqxx
 )
 
-if(NOT PQXX_FOUND)
-    # libpqxx C++ PostgreSQL library
-    fetchcontent_declare(
-        libpqxx
-        GIT_REPOSITORY https://github.com/jtv/libpqxx.git
-        GIT_TAG 221ddc8be329bafb376a3d83b9cd257fd52fc7b7 # Release v7.6.0
-    )
-endif()
 
 # libpq PostgreSQL library (required for libpqxx)
 fetchcontent_declare(
@@ -74,7 +66,25 @@ fetchcontent_declare(
     FIND_PACKAGE_ARGS CONFIG
 )
 
-fetchcontent_makeavailable(dpp argparse PostgreSQL nlohmann_json)
+if(NOT PQXX_FOUND)
+    # libpqxx C++ PostgreSQL library
+    fetchcontent_declare(
+        libpqxx
+        GIT_REPOSITORY https://github.com/jtv/libpqxx.git
+        GIT_TAG 221ddc8be329bafb376a3d83b9cd257fd52fc7b7 # Release v7.6.0
+    )
+    fetchcontent_makeavailable(dpp argparse PostgreSQL nlohmann_json libpqxx)
+else()
+    add_library(libpqxx::libpqxx INTERFACE IMPORTED)
+    set_target_properties(libpqxx::libpqxx PROPERTIES
+        IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
+        INTERFACE_INCLUDE_DIRECTORIES "${PQXX_INCLUDE_DIRS}"
+        INTERFACE_LINK_LIBRARIES "${PQXX_LIBRARIES}"
+        INTERFACE_COMPILE_OPTIONS "${PQXX_CFLAGS}"
+        VERSION "${PQXX_VERSION}"
+    )
+    fetchcontent_makeavailable(dpp argparse PostgreSQL nlohmann_json)
+endif()
 
 # ---- Declare executable ----
 
@@ -85,13 +95,11 @@ configure_file(${CMAKE_SOURCE_DIR}/include/config.hpp.in ${CMAKE_SOURCE_DIR}/inc
 
 target_include_directories(deathcounter_irl_binary PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
-target_include_directories(deathcounter_irl_binary SYSTEM PRIVATE ${PQXX_INCLUDE_DIRS})
-
 set_property(TARGET deathcounter_irl_binary PROPERTY OUTPUT_NAME deathcounter_irl)
 
 target_compile_features(deathcounter_irl_binary PRIVATE cxx_std_17)
 
-target_link_libraries(deathcounter_irl_binary PRIVATE dpp ${PQXX_LIBRARIES} nlohmann_json::nlohmann_json PostgreSQL::PostgreSQL)
+target_link_libraries(deathcounter_irl_binary PRIVATE dpp libpqxx::libpqxx nlohmann_json::nlohmann_json PostgreSQL::PostgreSQL)
 
 # ---- Install rules ----
 
