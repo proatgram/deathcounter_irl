@@ -29,7 +29,7 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) -> int {
 
     program.add_description(std::string(project_description));
     program.add_epilog(std::string(project_license_notice_interactive)
-        .replace(project_license_notice_interactive.find("<program>"), 9, program_invocation_name) // NOLINT
+        .replace(project_license_notice_interactive.find("<program>"), 9, argv[0]) // NOLINT
     );
 
     program.add_argument("--license", "-l")
