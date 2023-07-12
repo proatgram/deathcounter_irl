@@ -33,16 +33,17 @@ jobs:
               sudo cmake --install build
           - os: macos-12
             INSTALL_DEPENDENCIES: |
-              brew install libpqxx nlohmann-json argparse libsodium opus cmake git
+              brew install libpqxx nlohmann-json argparse libsodium opus cmake git make
               git clone https://github.com/brainboxdotcc/DPP.git && cd DPP && git checkout $DPP_COMMIT_HASH && mkdir build
               cmake -S . -B build -DDPP_USE_EXTERNAL_JSON=ON -DDPP_BUILD_TEST=OFF
               cmake --build build -j 8
               sudo cmake --install build
           - os: windows-2022
             INSTALL_DEPENDENCIES: |
+              choco install make
               vcpkg install libpqxx nlohmann-json argparse libsodium opus
               git clone https://github.com/brainboxdotcc/DPP.git && cd DPP && git checkout $DPP_COMMIT_HASH && mkdir build
-              cmake -S . -B build -DDPP_USE_EXTERNAL_JSON=ON -DDPP_BUILD_TEST=OFF -DCMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD=1
+              cmake -S . -B build -DDPP_USE_EXTERNAL_JSON=ON -DDPP_BUILD_TEST=OFF -G "Unix Makefiles"
               cmake --build build -j 8
               cmake --install build
 
@@ -73,7 +74,7 @@ jobs:
 
     - name: Configure
       shell: pwsh
-      run: cmake "--preset=ci-$("${{ matrix.os }}".split("-")[0])" -DCMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD=1
+      run: cmake "--preset=ci-$("${{ matrix.os }}".split("-")[0])" -G "Unix Makefiles"
 
     - name: Build
       run: cmake --build build --config Release -j 2 
