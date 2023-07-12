@@ -227,7 +227,6 @@ AnalyzeTemporaryDtors: false
 FormatStyle:     file
 User:            thetimbrick
 CheckOptions:
-  bugprone-unsafe-functions.ReportMoreUnsafeFunctions: 'true'
   performance-unnecessary-value-param.IncludeStyle: llvm
   readability-suspicious-call-argument.PrefixSimilarAbove: '30'
   cppcoreguidelines-no-malloc.Reallocations: '::realloc'

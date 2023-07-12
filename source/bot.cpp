@@ -37,10 +37,6 @@ namespace death {
 
     }
 
-    bot::~bot() {
-        m_db.close();
-    }
-
     void bot::start() {
         m_cluster.on_log(dpp::utility::cout_logger());
 
@@ -129,8 +125,8 @@ namespace death {
         try {
             const pqxx::result result(work.exec("SELECT * FROM " + work.quote_name(std::to_string(event.command.guild_id))));
             work.commit();
-            for (const auto &[user_name, user_displayname, user_nickname, user_id, user_deathcount] : result.iter<std::string, std::string, std::string, std::string, int>()) {
-                users.emplace_back((!user_nickname.empty() ? user_nickname : (!user_displayname.empty() ? user_displayname : user_name)), user_deathcount);
+            for (const auto row : result) {
+                users.emplace_back((!row.at(2).as<std::string>().empty() ? row.at(2).as<std::string>() : (!row.at(1).as<std::string>().empty() ? row.at(1).as<std::string>() : row.at(0).as<std::string>())), row.at(4).as<int>());
             }
         }
         catch (const std::exception &err) {
@@ -141,12 +137,13 @@ namespace death {
 
         deaths << "# DEATHS :skull:\n```\n";
 
-        static constexpr size_t FIRST_COL_SPACES = 12;
-        static constexpr size_t SECOND_COL_SPACES = 6;
+        std::size_t biggest_name = std::max_element(users.begin(), users.end(), [](const std::pair<std::string, int> &first, const std::pair<std::string, int> &second) {
+            return first.first.size() < second.first.size();
+        })->first.size();
 
-        deaths << "| " << std::setw(static_cast<int>(users.at(0).first.size() + FIRST_COL_SPACES)) << std::left << "User" << " | " << "Deaths" << " |" << std::endl;
+        deaths << "| " << std::setw(static_cast<int>(biggest_name)) << std::left << "User" << " | " << "Deaths" << " |" << std::endl;
         for (const auto &[user, count] : users) {
-            deaths << "| " << std::setw(static_cast<int>(users.at(0).first.size() + FIRST_COL_SPACES)) << std::left << user << " | " << std::setw(SECOND_COL_SPACES) << count << " |" << std::endl; 
+            deaths << "| " << std::setw(static_cast<int>(biggest_name)) << std::left << user << " | " << std::setw(static_cast<int>(std::strlen("Deaths"))) << count << " |" << std::endl; 
         }
         deaths << "```" << std::endl;;
             

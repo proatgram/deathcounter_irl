@@ -32,7 +32,7 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) -> int {
         .replace(project_license_notice_interactive.find("<program>"), 9, program_invocation_name) // NOLINT
     );
 
-    program.add_argument("--license")
+    program.add_argument("--license", "-l")
         .action([=]([[maybe_unused]] const std::string &arg){
                 std::cout << project_license << std::endl;
                 exit(0); // NOLINT

@@ -28,7 +28,8 @@ namespace death {
             bot(bot&&) = delete;
             auto operator=(const bot&) -> bot& = delete;
             auto operator=(bot&&) -> bot& = delete;
-            ~bot();
+
+            ~bot() = default;
         
             explicit bot(const std::string &bot_token, const std::string &db_hostname, const std::string &db_name, const std::string &db_user, const std::string &db_passwd, const std::string &db_port);
 
