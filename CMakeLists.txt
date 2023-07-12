@@ -21,7 +21,6 @@ set(FETCHCONTENT_TRY_FIND_PACKAGE_MODE OPT_IN)
 set(FETCHCONTENT_QUIET OFF)
 
 set(DPP_USE_EXTERNAL_JSON ON)
-set(DPP_CORO OFF)
 
 include(cmake/project-is-top-level.cmake)
 include(cmake/variables.cmake)
@@ -97,9 +96,9 @@ target_include_directories(deathcounter_irl_binary PUBLIC ${CMAKE_SOURCE_DIR}/in
 
 set_property(TARGET deathcounter_irl_binary PROPERTY OUTPUT_NAME deathcounter_irl)
 
-target_compile_features(deathcounter_irl_binary PRIVATE cxx_std_17)
+target_compile_features(deathcounter_irl_binary PRIVATE cxx_std_20)
 
-target_link_libraries(deathcounter_irl_binary PRIVATE dpp libpqxx::libpqxx nlohmann_json::nlohmann_json PostgreSQL::PostgreSQL)
+target_link_libraries(deathcounter_irl_binary PRIVATE dpp::dpp libpqxx::libpqxx nlohmann_json::nlohmann_json PostgreSQL::PostgreSQL)
 
 # ---- Install rules ----
 

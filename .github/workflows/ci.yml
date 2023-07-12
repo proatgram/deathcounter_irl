@@ -36,8 +36,8 @@ jobs:
               brew install libpqxx nlohmann-json argparse libsodium opus cmake git
               git clone https://github.com/brainboxdotcc/DPP.git && cd DPP && git checkout $DPP_COMMIT_HASH && mkdir build
               cmake -S . -B build -DDPP_USE_EXTERNAL_JSON=ON -DDPP_BUILD_TEST=OFF
-              cmake --build build --config Release -j 8
-              sudo cmake --install build --config Release
+              cmake --build build -j 8
+              sudo cmake --install build
           - os: windows-2022
             INSTALL_DEPENDENCIES: |
               vcpkg install libpqxx nlohmann-json argparse libsodium opus
