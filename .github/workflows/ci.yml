@@ -42,7 +42,7 @@ jobs:
             INSTALL_DEPENDENCIES: |
               vcpkg install libpqxx nlohmann-json argparse libsodium opus
               git clone https://github.com/brainboxdotcc/DPP.git && cd DPP && git checkout $DPP_COMMIT_HASH && mkdir build
-              cmake -S . -B build -DDPP_USE_EXTERNAL_JSON=ON -DDPP_BUILD_TEST=OFF
+              cmake -S . -B build -DDPP_USE_EXTERNAL_JSON=ON -DDPP_BUILD_TEST=OFF -DCMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD=1
               cmake --build build -j 8
               cmake --install build
 
@@ -73,10 +73,10 @@ jobs:
 
     - name: Configure
       shell: pwsh
-      run: cmake "--preset=ci-$("${{ matrix.os }}".split("-")[0])"
+      run: cmake "--preset=ci-$("${{ matrix.os }}".split("-")[0])" -DCMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD=1
 
     - name: Build
-      run: cmake --build build --config Release -j 2
+      run: cmake --build build --config Release -j 2 
 
     - name: Install
       run: cmake --install build --config Release --prefix prefix
