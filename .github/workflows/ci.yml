@@ -24,8 +24,8 @@ jobs:
               sudo apt-get install wget libpqxx-dev libopus-dev libsodium-dev nlohmann-json3-dev -q -y
               git clone https://github.com/brainboxdotcc/DPP.git && cd DPP && git checkout $DPP_COMMIT_HASH && mkdir build
               cmake -S . -B build -DDPP_USE_EXTERNAL_JSON=ON -DDPP_NO_VCPKG=ON
-              cmake --build build --config Release -j 8
-              sudo cmake --install build --config Release
+              cmake --build build -j 8
+              sudo cmake --install build
               wget -O argparse.tar.gz https://github.com/p-ranav/argparse/archive/refs/tags/v2.9.tar.gz
               tar -vxf argparse.tar.gz && cd argparse-2.9/ && mkdir build
               cmake -S . -B build
@@ -58,8 +58,18 @@ jobs:
         sudo update-alternatives --install
         /usr/bin/clang-tidy clang-tidy
         /usr/bin/clang-tidy-14 140
+    - name: Restore VCPKG cache
+      if: matrix.os == 'windows-2022'
+      id: cache-vcpkg
+      uses: actions/cache@v3
+      with:
+        path: 'C:\vcpkg\packages'
+        key: ${{ matrix.os }}-vcpkgs
 
     - name: Install dependencies
+      if: |
+        steps.cache-vcpkg.outputs.cache-hit != true ||
+        steps.cache-vcpkg.outcome == 'skipped'
       run: ${{ matrix.INSTALL_DEPENDENCIES }}
 
 
