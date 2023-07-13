@@ -23,7 +23,7 @@ jobs:
               sudo apt-get update -q
               sudo apt-get install wget libpqxx-dev libopus-dev libsodium-dev nlohmann-json3-dev -q -y
               git clone https://github.com/brainboxdotcc/DPP.git && cd DPP && git checkout $DPP_COMMIT_HASH && mkdir build
-              cmake -S . -B build -DDPP_USE_EXTERNAL_JSON=ON
+              cmake -S . -B build -DDPP_USE_EXTERNAL_JSON=ON -DDPP_NO_VCPKG=ON
               cmake --build build --config Release -j 8
               sudo cmake --install build --config Release
               wget -O argparse.tar.gz https://github.com/p-ranav/argparse/archive/refs/tags/v2.9.tar.gz
@@ -35,20 +35,15 @@ jobs:
             INSTALL_DEPENDENCIES: |
               brew install libpqxx nlohmann-json argparse libsodium opus cmake git make
               git clone https://github.com/brainboxdotcc/DPP.git && cd DPP && git checkout $DPP_COMMIT_HASH && mkdir build
-              cmake -S . -B build -DDPP_USE_EXTERNAL_JSON=ON -DDPP_BUILD_TEST=OFF
-              cmake --build build --config Release -j 8
-              sudo cmake --install build --config Release
+              cmake -S . -B build -DDPP_USE_EXTERNAL_JSON=ON -DDPP_BUILD_TEST=OFF -DDPP_NO_VCPKG=ON
+              cmake --build build -j 8
+              sudo cmake --install build
           - os: windows-2022
             INSTALL_DEPENDENCIES: |
               choco install make
               vcpkg install libpqxx nlohmann-json argparse libsodium opus
-              git clone https://github.com/brainboxdotcc/DPP.git && cd DPP && git checkout $DPP_COMMIT_HASH && mkdir build
-              cmake -S . -B build -DDPP_USE_EXTERNAL_JSON=ON -DDPP_BUILD_TEST=OFF -DCMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD=1
-              cmake --build build --config Release -j 8
-              cmake --install build --config Release
             OS_CMAKE_ARGS: >-
-              -DCMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD=1
-
+              -DCMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD=1 -DDPP_USE_EXTERNAL_JSON=ON -DDPP_BUILD_TEST=OFF -DPP_NO_VCPKG=ON
 
     runs-on: ${{ matrix.os }}
 
@@ -76,7 +71,7 @@ jobs:
 
     - name: Configure
       shell: pwsh
-      run: cmake "--preset=ci-$("${{ matrix.os }}".split("-")[0])"  ${{ matrix.OS_CMAKE_ARGS }}
+      run: cmake "--preset=ci-$("${{ matrix.os }}".split("-")[0])" ${{ matrix.OS_CMAKE_ARGS }}
 
     - name: Build
       run: cmake --build build --config Release -j 2 
