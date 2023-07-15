@@ -81,13 +81,10 @@ jobs:
 
     - name: Configure
       shell: pwsh
-      if: matrix.os != 'windows-2022'
       run: cmake "--preset=ci-$("${{ matrix.os }}".split("-")[0])" ${{ matrix.OS_CMAKE_ARGS }}
 
     - name: Build
-      if: matrix.os != 'windows-2022'
       run: cmake --build build --config Release -j 2 
 
     - name: Install
-      if: matrix.os != 'windows-2022'
       run: cmake --install build --config Release --prefix prefix
