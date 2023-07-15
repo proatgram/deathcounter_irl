@@ -41,9 +41,9 @@ jobs:
           - os: windows-2022
             INSTALL_DEPENDENCIES: |
               choco install make
-              vcpkg install libpqxx nlohmann-json argparse libsodium opus
+              vcpkg install --triplet x64-windows libpqxx nlohmann-json argparse libsodium opus
             OS_CMAKE_ARGS: >-
-              -DCMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD=1 -DDPP_USE_EXTERNAL_JSON=ON -DDPP_BUILD_TEST=OFF -DPP_NO_VCPKG=ON
+              -DCMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD=1 -DDPP_USE_EXTERNAL_JSON=ON -DDPP_BUILD_TEST=OFF -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
 
     runs-on: ${{ matrix.os }}
 
@@ -58,6 +58,7 @@ jobs:
         sudo update-alternatives --install
         /usr/bin/clang-tidy clang-tidy
         /usr/bin/clang-tidy-14 140
+
     - name: Restore VCPKG cache
       if: matrix.os == 'windows-2022'
       id: cache-vcpkg
@@ -72,7 +73,6 @@ jobs:
         steps.cache-vcpkg.outcome == 'skipped'
       run: ${{ matrix.INSTALL_DEPENDENCIES }}
 
-
     - name: Setup MultiToolTask
       if: matrix.os == 'windows-2022'
       run: |
@@ -81,10 +81,13 @@ jobs:
 
     - name: Configure
       shell: pwsh
+      if: matrix.os != 'windows-2022'
       run: cmake "--preset=ci-$("${{ matrix.os }}".split("-")[0])" ${{ matrix.OS_CMAKE_ARGS }}
 
     - name: Build
+      if: matrix.os != 'windows-2022'
       run: cmake --build build --config Release -j 2 
 
     - name: Install
+      if: matrix.os != 'windows-2022'
       run: cmake --install build --config Release --prefix prefix
