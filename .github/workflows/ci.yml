@@ -41,6 +41,7 @@ jobs:
           - os: windows-2022
             INSTALL_DEPENDENCIES: |
               choco install make
+              if (!(test-path -PathType container "C:\Users\runneradmin\AppData\Local\vcpkg\archives")) { New-Item -ItemType Directory -Path "C:\Users\runneradmin\AppData\Local\vcpkg\archives" }
               vcpkg install --triplet x64-windows libpqxx nlohmann-json argparse libsodium opus
             OS_CMAKE_ARGS: >-
               -DCMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD=1 -DDPP_USE_EXTERNAL_JSON=ON -DDPP_BUILD_TEST=OFF -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
@@ -62,15 +63,21 @@ jobs:
     - name: Restore VCPKG cache
       if: matrix.os == 'windows-2022'
       id: cache-vcpkg
+      env:
+        VCPKG_DEFAULT_BINARY_CACHE: 'C:\Users\runneradmin\AppData\Local\vcpkg\archives'
       uses: actions/cache@v3
       with:
-        path: 'C:\vcpkg'
+        path: |
+          ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
         key: ${{ matrix.os }}-vcpkgs
 
     - name: Install dependencies
+      shell: pwsh
       if: |
         steps.cache-vcpkg.outputs.cache-hit != true ||
         steps.cache-vcpkg.outcome == 'skipped'
+      env:
+        VCPKG_DEFAULT_BINARY_CACHE: 'C:\Users\runneradmin\AppData\Local\vcpkg\archives'
       run: ${{ matrix.INSTALL_DEPENDENCIES }}
 
     - name: Setup MultiToolTask
