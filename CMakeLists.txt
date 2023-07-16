@@ -9,21 +9,43 @@ include(FindPkgConfig)
 
 include(cmake/prelude.cmake)
 
-project(
-    deathcounter_irl
-    VERSION 0.1.0
-    DESCRIPTION "A death counter for the unofficial furry_irl discord server"
-    HOMEPAGE_URL "github.com/proatgram/deathcounter_irl"
-    LANGUAGES CXX
-)
+option(DC_IRL_USE_VCPKG "Use VCPKG and configure project using its toolchain" OFF)
+
+if(DC_IRL_USE_VCPKG)
+    message(STATUS "Using VCPKG.")
+    if(WIN32)
+        if(EXISTS "C:/vcpkg/scripts/buildsystems/vcpkg.cmake")
+            set(CMAKE_TOOLCHAIN_FILE "C:/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+        elseif(EXISTS "C:/src/vcpkg/scripts/buildsystems/vcpkg.cmake")
+            set(CMAKE_TOOLCHAIN_FILE "C:/src/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+        elseif(EXISTS "C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake")
+            set(CMAKE_TOOLCHAIN_FILE "C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+        else()
+            message(ERROR "Could not find VCPKG toolchain file for CMake.")
+        endif()
+    elseif(UNIX)
+        if(EXISTS "/usr/local/vcpkg/scripts/buildsystems/vcpkg.cmake")
+            set(CMAKE_TOOLCHAIN_FILE "/usr/local/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+        else()
+            message(ERROR "Could not find VCPKG toolchain file for CMake.")
+        endif()
+    elseif(APPLE)
+        if (EXISTS "/usr/local/vcpkg/scripts/buildsystems/vcpkg.cmake")
+            set(CMAKE_TOOLCHAIN_FILE "/usr/local/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+        else()
+            message(ERROR "Could not find VCPKG toolchain file for CMake.")
+        endif()
+    else()
+        message(ERROR "Unkown OS for VCPKG.")
+    endif()
+else()
+    message(STATUS "Not using VCPKG.")
+endif()
 
 set(FETCHCONTENT_TRY_FIND_PACKAGE_MODE OPT_IN)
 set(FETCHCONTENT_QUIET OFF)
 
 set(DPP_USE_EXTERNAL_JSON ON)
-
-include(cmake/project-is-top-level.cmake)
-include(cmake/variables.cmake)
 
 # ---- Declare library ----
 
@@ -86,6 +108,17 @@ else()
     )
     fetchcontent_makeavailable(dpp argparse PostgreSQL nlohmann_json)
 endif()
+
+project(
+    deathcounter_irl
+    VERSION 0.1.0
+    DESCRIPTION "A death counter for the unofficial furry_irl discord server"
+    HOMEPAGE_URL "github.com/proatgram/deathcounter_irl"
+    LANGUAGES CXX
+)
+
+include(cmake/project-is-top-level.cmake)
+include(cmake/variables.cmake)
 
 # ---- Declare executable ----
 

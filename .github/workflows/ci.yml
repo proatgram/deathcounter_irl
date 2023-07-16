@@ -44,7 +44,7 @@ jobs:
               if (!(test-path -PathType container "C:\Users\runneradmin\AppData\Local\vcpkg\archives")) { New-Item -ItemType Directory -Path "C:\Users\runneradmin\AppData\Local\vcpkg\archives" }
               vcpkg install --triplet x64-windows libpqxx nlohmann-json argparse libsodium opus
             OS_CMAKE_ARGS: >-
-              -DCMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD=1 -DDPP_USE_EXTERNAL_JSON=ON -DDPP_BUILD_TEST=OFF -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
+              -DCMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD=1 -DDPP_USE_EXTERNAL_JSON=ON -DDPP_BUILD_TEST=OFF -DDC_IRL_USE_VCPKG=ON -DCMAKE_MAXIMUM_RECURSION_DEPTH=999999
 
     runs-on: ${{ matrix.os }}
 
